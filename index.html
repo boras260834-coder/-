@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>¥ ⇄ ₩ 일본 여행 도구</title>
+<meta name="theme-color" content="#FFF6EA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="엔화환율">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" id="faviconLink">
+<link rel="apple-touch-icon" id="appleIconLink">
+<link rel="manifest" id="manifestLink">
+<style>
+  :root{
+    --bg:#FFF6EA;
+    --surface:#FFFFFF;
+    --surface-2:#FFF1DC;
+    --accent:#12B8A0;
+    --accent-2:#FF8552;
+    --accent-ink:#FFFFFF;
+    --accent-soft:rgba(18,184,160,0.12);
+    --danger:#E0654F;
+    --text:#1C2B33;
+    --text-muted:#5F7C79;
+    --text-faint:#93AEAA;
+    --line:rgba(28,43,51,0.09);
+    --shadow:0 2px 14px rgba(28,43,51,0.06);
+  }
+  body.dark{
+    --bg:#0F1E1C;
+    --surface:#16302B;
+    --surface-2:#132621;
+    --accent:#1FD1B4;
+    --accent-2:#FF9868;
+    --accent-ink:#0B1917;
+    --accent-soft:rgba(31,209,180,0.14);
+    --danger:#FF8B7A;
+    --text:#F3EFE6;
+    --text-muted:#8FADA7;
+    --text-faint:#5F7D77;
+    --line:rgba(243,239,230,0.10);
+    --shadow:0 2px 14px rgba(0,0,0,0.25);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% -8%, rgba(255,197,120,0.35), transparent 42%),
+      radial-gradient(circle at 100% 0%, rgba(18,184,160,0.14), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Manrope', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 44px;
+    padding-bottom:calc(44px + env(safe-area-inset-bottom));
+    transition:background .2s ease, color .2s ease;
+  }
+  body.dark{
+    background:
+      radial-gradient(circle at 12% -8%, rgba(31,209,180,0.10), transparent 42%),
+      radial-gradient(circle at 100% 0%, rgba(255,152,104,0.08), transparent 40%),
+      var(--bg);
+  }
+
+  /* ---- 색상 테마 프리셋 (accent 색상만 교체, 명암은 dark 토글이 따로 담당) ---- */
+  body.theme-sakura{ --accent:#FF6FA5; --accent-2:#6C63FF; --accent-soft:rgba(255,111,165,0.13); }
+  body.theme-ocean{ --accent:#2E86DE; --accent-2:#FFC145; --accent-soft:rgba(46,134,222,0.13); }
+  body.theme-forest{ --accent:#3EAA6D; --accent-2:#E8735C; --accent-soft:rgba(62,170,109,0.13); }
+  body.dark.theme-sakura{ --accent:#FF8FBB; --accent-2:#8B84FF; --accent-soft:rgba(255,143,187,0.16); }
+  body.dark.theme-ocean{ --accent:#5EA6F2; --accent-2:#FFD166; --accent-soft:rgba(94,166,242,0.16); }
+  body.dark.theme-forest{ --accent:#5FC98C; --accent-2:#FF9478; --accent-soft:rgba(95,201,140,0.16); }
+
+  .theme-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin:-14px 0 20px; }
+  .swatch{
+    width:26px; height:26px; border-radius:50%; border:2px solid transparent;
+    cursor:pointer; padding:0; position:relative; flex-shrink:0;
+  }
+  .swatch.active{ border-color:var(--text); }
+  .swatch.active::after{
+    content:"✓"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:11px; font-weight:800; text-shadow:0 1px 2px rgba(0,0,0,0.35);
+  }
+  .app{ width:100%; max-width:420px; }
+
+  header{ text-align:center; margin-bottom:24px; position:relative; }
+  .theme-toggle{
+    position:absolute; top:-6px; right:0;
+    width:34px; height:34px; border-radius:10px;
+    background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:15px; box-shadow:var(--shadow);
+  }
+  .eyebrow{
+    font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--accent-2); font-weight:700; margin-bottom:8px;
+  }
+  h1{
+    font-family:'Fraunces', serif; font-weight:600; font-size:28px;
+    margin:0 0 6px; letter-spacing:-0.01em; color:var(--text);
+  }
+  h1 em{ color:var(--accent); font-style:italic; font-weight:500; }
+  .sub{ color:var(--text-muted); font-size:13px; line-height:1.5; }
+
+  .board{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px; display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px; box-shadow:var(--shadow);
+  }
+  .board-label{ font-size:10.5px; color:var(--text-faint); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:3px; }
+  .board-rate{ font-family:'Fraunces', serif; font-size:18px; font-weight:600; color:var(--accent); font-variant-numeric: tabular-nums; }
+  .board-status{ font-size:10.5px; color:var(--text-faint); margin-top:3px; }
+  .refresh-btn{
+    background:var(--accent-soft); border:1px solid transparent; color:var(--accent);
+    border-radius:10px; width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0;
+  }
+  .refresh-btn:active{ background:rgba(18,184,160,0.22); }
+  .refresh-btn.spinning svg{ animation: spin .7s linear; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .tabbar{
+    display:flex; gap:3px; background:var(--surface); border:1px solid var(--line);
+    border-radius:12px; padding:4px; margin-bottom:10px; box-shadow:var(--shadow);
+    overflow-x:auto;
+  }
+  .tab{
+    flex:1 0 auto; min-width:60px; padding:9px 4px; border-radius:9px;
+    font-family:'Manrope', sans-serif; font-size:12px; font-weight:700;
+    color:var(--text-muted); background:transparent; border:none; cursor:pointer; white-space:nowrap;
+  }
+  .tab.active{ background:var(--accent); color:var(--accent-ink); }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .util-row{ display:flex; gap:8px; margin-bottom:16px; }
+  .storage-warn{
+    display:none;
+    background:rgba(224,101,79,0.12);
+    border:1px solid rgba(224,101,79,0.35);
+    color:var(--danger);
+    font-size:11.5px;
+    line-height:1.5;
+    border-radius:12px;
+    padding:10px 12px;
+    margin-bottom:14px;
+  }
+  .storage-warn.show{ display:block; }
+  .widget-link{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
+    font-family:'Manrope', sans-serif; font-size:12px; font-weight:700;
+    padding:9px 0; border-radius:10px; text-decoration:none; margin-bottom:16px;
+  }
+  .widget-link:active{ border-color:var(--accent); color:var(--accent); }
+  .util-btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:5px;
+    background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
+    font-family:'Manrope', sans-serif; font-size:12px; font-weight:700;
+    padding:9px 0; border-radius:10px; cursor:pointer;
+  }
+  .util-btn:active{ border-color:var(--accent); color:var(--accent); }
+
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:var(--shadow); }
+  .card + .card{ margin-top:14px; }
+  .card-title{ font-size:13px; font-weight:700; color:var(--text); margin:0 0 12px; }
+  .card-title.tight{ margin-bottom:8px; }
+
+  .field{ background:var(--surface-2); border:1px solid transparent; border-radius:12px; padding:12px 14px; }
+  .field + .field{ margin-top:10px; }
+  .field.focused{ border-color:var(--accent); }
+  .field-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  .field-label{ font-size:11.5px; font-weight:700; color:var(--text-muted); letter-spacing:0.02em; }
+  .field-row{ display:flex; align-items:baseline; gap:6px; }
+  .unit{ font-family:'Fraunces', serif; font-size:17px; color:var(--text-faint); font-weight:500; }
+  .field input{
+    flex:1; min-width:0; background:transparent; border:none; outline:none; color:var(--text);
+    font-family:'Fraunces', serif; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; padding:0;
+  }
+  .field input::placeholder{ color:var(--text-faint); opacity:.7; }
+  .field.small input{ font-size:16px; font-weight:600; }
+  .field.text input{ font-family:'Manrope', sans-serif; font-size:15px; font-weight:600; }
+
+  .swap{ display:flex; align-items:center; justify-content:center; color:var(--text-faint); margin:6px 0; }
+
+  .override{ margin-top:14px; border-top:1px dashed var(--line); padding-top:12px; }
+  .override summary{
+    font-size:12.5px; color:var(--text-muted); cursor:pointer; list-style:none;
+    display:flex; align-items:center; gap:6px; font-weight:600;
+  }
+  .override summary::-webkit-details-marker{ display:none; }
+  .override summary::before{ content:"›"; display:inline-block; transition:transform .15s ease; color:var(--accent); font-weight:700; }
+  .override[open] summary::before{ transform: rotate(90deg); }
+  .override-body{ margin-top:12px; }
+  .override-foot{ display:flex; justify-content:flex-end; margin-top:8px; }
+
+  .ex-heading-row{ display:flex; align-items:center; justify-content:space-between; margin:0 0 10px 2px; }
+  .ex-heading{ font-size:11.5px; color:var(--text-muted); letter-spacing:0.03em; }
+  .add-amt-btn{
+    width:24px; height:24px; border-radius:7px; background:var(--accent-soft); color:var(--accent);
+    border:none; font-size:15px; font-weight:700; cursor:pointer; line-height:1;
+  }
+  .add-amt-row{ display:none; gap:6px; margin-bottom:10px; }
+  .add-amt-row.open{ display:flex; }
+  .add-amt-row input{
+    flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+    padding:8px 10px; font-family:'Manrope', sans-serif; font-size:13px; color:var(--text); outline:none;
+  }
+  .add-amt-row button{
+    background:var(--accent); color:var(--accent-ink); border:none; border-radius:8px;
+    padding:0 14px; font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+  .ex-list{ display:flex; flex-direction:column; gap:8px; }
+  .ex-row{
+    display:flex; align-items:center; justify-content:space-between; background:var(--surface-2);
+    border:1px solid transparent; border-radius:12px; padding:12px 14px; cursor:pointer; gap:8px;
+  }
+  .ex-row:active{ border-color:var(--accent); }
+  .ex-row.custom{ border-color:rgba(255,133,82,0.35); }
+  .ex-idr{ font-family:'Fraunces', serif; font-size:15px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .ex-krw{ font-family:'Fraunces', serif; font-size:14px; font-weight:600; color:var(--accent); font-variant-numeric: tabular-nums; text-align:right; flex:1; }
+  .custom-dot{ width:5px; height:5px; border-radius:50%; background:var(--accent-2); flex-shrink:0; }
+  .ex-del{
+    width:20px; height:20px; border-radius:6px; border:none; background:transparent; color:var(--text-faint);
+    font-size:14px; cursor:pointer; flex-shrink:0; line-height:1;
+  }
+  .ex-del:active{ color:var(--danger); }
+
+  .adv-hint{ font-size:11.5px; color:var(--text-faint); line-height:1.55; margin-top:12px; }
+  .reset-link{
+    display:inline-block; margin-top:12px; font-size:12px; font-weight:700; color:var(--accent);
+    background:none; border:none; padding:0; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+  }
+
+  .dir-toggle{ display:flex; gap:4px; background:var(--surface-2); border-radius:10px; padding:3px; margin-bottom:12px; }
+  .dir-btn{
+    flex:1; text-align:center; padding:8px 0; border-radius:8px; font-family:'Manrope', sans-serif;
+    font-size:12.5px; font-weight:700; color:var(--text-muted); background:transparent; border:none; cursor:pointer;
+  }
+  .dir-btn.active{ background:var(--accent-2); color:#fff; }
+
+  .result-block{ margin-top:18px; padding-top:16px; border-top:1px solid var(--line); text-align:center; }
+  .result-label{ font-size:11px; color:var(--text-muted); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px; }
+  .result-amount{ font-family:'Fraunces', serif; font-size:34px; font-weight:600; color:var(--accent-2); font-variant-numeric: tabular-nums; letter-spacing:-0.01em; }
+  .result-sub{ font-size:11.5px; color:var(--text-faint); margin-top:6px; }
+
+  .install-note{
+    display:flex; gap:10px; align-items:flex-start; background:var(--accent-soft);
+    border:1px solid rgba(18,184,160,0.28); border-radius:14px; padding:13px 14px; margin-top:14px;
+    font-size:12px; color:var(--text-muted); line-height:1.6;
+  }
+  .install-note strong{ color:var(--text); }
+  .install-close{ background:none; border:none; color:var(--text-faint); font-size:16px; line-height:1; cursor:pointer; padding:2px; flex-shrink:0; }
+
+  footer{ text-align:center; color:var(--text-faint); font-size:11px; line-height:1.6; margin-top:22px; padding:0 8px; }
+
+  /* ---- budget tab ---- */
+  .stat-row{ display:flex; gap:10px; margin-bottom:14px; }
+  .stat{ flex:1; background:var(--surface-2); border-radius:12px; padding:10px 12px; text-align:center; }
+  .stat-label{ font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px; }
+  .stat-value{ font-family:'Fraunces', serif; font-size:15px; font-weight:600; color:var(--text); font-variant-numeric: tabular-nums; }
+  .stat.highlight .stat-value{ color:var(--accent-2); }
+  .progress-track{ height:8px; background:var(--surface-2); border-radius:5px; overflow:hidden; margin-top:4px; }
+  .progress-fill{ height:100%; background:var(--accent); border-radius:5px; transition:width .25s ease; }
+  .progress-fill.over{ background:var(--danger); }
+
+  .add-row{ display:flex; gap:8px; }
+  .add-row .field{ flex:1; margin-top:0; }
+  .add-row button{
+    background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px;
+    padding:0 16px; font-family:'Manrope', sans-serif; font-size:13px; font-weight:700; cursor:pointer; flex-shrink:0;
+  }
+
+  .item-row{
+    display:flex; align-items:center; gap:10px; background:var(--surface-2); border-radius:12px;
+    padding:11px 13px;
+  }
+  .item-row + .item-row{ margin-top:8px; }
+  .item-main{ flex:1; min-width:0; }
+  .item-title{ font-size:13.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .item-sub{ font-size:11px; color:var(--text-faint); margin-top:2px; }
+  .item-amt{ font-family:'Fraunces', serif; font-size:14.5px; font-weight:600; color:var(--accent-2); flex-shrink:0; white-space:nowrap; }
+  .item-del{
+    width:24px; height:24px; border-radius:7px; border:none; background:transparent; color:var(--text-faint);
+    font-size:15px; cursor:pointer; flex-shrink:0; line-height:1;
+  }
+  .item-del:active{ color:var(--danger); }
+  .empty-note{ font-size:12.5px; color:var(--text-faint); text-align:center; padding:14px 0; }
+
+  /* ---- history ---- */
+  .history-row{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:12.5px; }
+  .history-row:last-child{ border-bottom:none; }
+  .history-amt{ font-family:'Fraunces', serif; font-weight:600; color:var(--text); }
+  .history-time{ color:var(--text-faint); font-size:10.5px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <button class="theme-toggle" id="themeToggle" aria-label="다크모드 전환">🌙</button>
+    <div class="eyebrow">Japan · Trip</div>
+    <h1>엔화 <em>⇄</em> 원화</h1>
+    <div class="sub">일본 여행용 환율 & 경비 도구</div>
+  </header>
+
+  <div class="theme-row" id="themeRow">
+    <button class="swatch active" data-theme="sunset" style="background:linear-gradient(135deg,#12B8A0,#FF8552);" aria-label="선셋 테마"></button>
+    <button class="swatch" data-theme="sakura" style="background:linear-gradient(135deg,#FF6FA5,#6C63FF);" aria-label="벚꽃 테마"></button>
+    <button class="swatch" data-theme="ocean" style="background:linear-gradient(135deg,#2E86DE,#FFC145);" aria-label="바다 테마"></button>
+    <button class="swatch" data-theme="forest" style="background:linear-gradient(135deg,#3EAA6D,#E8735C);" aria-label="숲 테마"></button>
+  </div>
+
+  <div class="board" id="rateBoard" style="display:none;">
+    <div>
+      <div class="board-label">현재 환율</div>
+      <div class="board-rate" id="rateDisplay">100엔 = 8.80원</div>
+      <div class="board-status" id="rateStatus">불러오는 중…</div>
+    </div>
+    <button class="refresh-btn" id="refreshBtn" aria-label="환율 새로고침">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab active" data-tab="home">홈</button>
+    <button class="tab" data-tab="basic">기본</button>
+    <button class="tab" data-tab="budget">예산</button>
+    <button class="tab" data-tab="advanced">고급</button>
+  </div>
+
+  <div class="util-row">
+    <button class="util-btn" id="saveBtn">💾 <span id="saveLabel">설정 저장</span></button>
+    <button class="util-btn" id="resetAllBtn">↺ 전체 초기화</button>
+  </div>
+
+  <div class="storage-warn" id="storageWarn">
+    ⚠️ 이 화면(미리보기)에서는 브라우저 저장소가 막혀 있어서 저장이 되지 않아요. 아래 파일을 다운로드해서 폰의 사파리/크롬으로 직접 열면 정상적으로 저장돼요.
+  </div>
+
+  <!-- ============ 홈 (기본 화면: 환율 + 남은 예산만) ============ -->
+  <div class="panel active" id="panel-home">
+    <div class="card" style="text-align:center; padding:28px 20px;">
+      <div class="result-label">현재 환율</div>
+      <div class="result-amount" id="homeRate" style="color:var(--accent); font-size:30px;">100엔 = 8.80원</div>
+
+      <div style="height:1px; background:var(--line); margin:22px -18px;"></div>
+
+      <div id="homeBudgetBlock">
+        <div class="empty-note">예산 탭에서 예산을 설정해보세요</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 기본 탭 ============ -->
+  <div class="panel" id="panel-basic">
+
+    <div class="card">
+      <div class="field" id="idrField">
+        <div class="field-top"><span class="field-label">엔화</span><span>🇯🇵</span></div>
+        <div class="field-row">
+          <span class="unit">¥</span>
+          <input class="amount" id="idrInput" inputmode="numeric" placeholder="0" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="swap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 10l5 5 5-5"/><path d="M7 14l5-5 5 5"/>
+        </svg>
+      </div>
+
+      <div class="field" id="krwField">
+        <div class="field-top"><span class="field-label">원화</span><span>🇰🇷</span></div>
+        <div class="field-row">
+          <span class="unit">₩</span>
+          <input class="amount" id="krwInput" inputmode="numeric" placeholder="0" autocomplete="off">
+        </div>
+      </div>
+
+      <details class="override">
+        <summary>환율 직접 설정</summary>
+        <div class="override-body">
+          <div class="field" id="basicRateField">
+            <div class="field-top"><span class="field-label">적용 환율</span></div>
+            <div class="field-row">
+              <span class="unit">100엔=</span>
+              <input type="number" id="basicRate" inputmode="decimal" placeholder="8.80" step="0.01">
+              <span class="unit">원</span>
+            </div>
+          </div>
+          <div class="override-foot"><button class="reset-link" id="basicResetBtn">실시간 환율로 초기화</button></div>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="ex-heading-row">
+        <span class="ex-heading" id="exHeading">자주 쓰는 금액</span>
+        <button class="add-amt-btn" id="exAddToggle">+</button>
+      </div>
+      <div class="add-amt-row" id="exAddRow">
+        <input type="number" id="exAddInput" inputmode="numeric" placeholder="예: 20000">
+        <button id="exAddConfirm">추가</button>
+      </div>
+      <div class="ex-list" id="exRows"></div>
+    </div>
+
+    <div class="card">
+      <div class="ex-heading-row">
+        <span class="ex-heading">최근 계산</span>
+        <button class="reset-link" id="clearHistoryBtn" style="margin-top:0;">전체 삭제</button>
+      </div>
+      <div id="historyRows"><div class="empty-note">아직 계산 기록이 없어요</div></div>
+    </div>
+
+  </div>
+
+  <!-- ============ 고급 탭 ============ -->
+  <div class="panel" id="panel-advanced">
+
+    <div class="card">
+      <div class="field" id="advRateField">
+        <div class="field-top"><span class="field-label">적용 환율</span></div>
+        <div class="field-row">
+          <span class="unit">100엔=</span>
+          <input type="number" id="advRate" inputmode="decimal" placeholder="8.80" step="0.01">
+          <span class="unit">원</span>
+        </div>
+      </div>
+      <div class="field" id="advFeeField">
+        <div class="field-top"><span class="field-label">수수료</span></div>
+        <div class="field-row">
+          <input type="number" id="advFee" inputmode="decimal" placeholder="0" step="0.1" min="0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="adv-hint">환전소에서 안내받은 환율과 수수료를 직접 입력해서 실제로 받게 될 금액을 계산해보세요.</div>
+      <button class="reset-link" id="fillLiveBtn">실시간 환율 불러오기</button>
+    </div>
+
+    <div class="card">
+      <div class="dir-toggle" id="dirToggle">
+        <button class="dir-btn active" data-dir="krw">₩ → ¥</button>
+        <button class="dir-btn" data-dir="idr">¥ → ₩</button>
+      </div>
+
+      <div class="field" id="advAmountField">
+        <div class="field-top"><span class="field-label">환전할 금액</span></div>
+        <div class="field-row">
+          <span class="unit" id="advAmountUnit">₩</span>
+          <input class="amount" id="advAmountInput" inputmode="numeric" placeholder="0" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="ex-heading" style="margin-top:14px;">자주 쓰는 금액</div>
+      <div class="ex-list" id="advExRows"></div>
+
+      <div class="result-block">
+        <div class="result-label">실수령액</div>
+        <div class="result-amount" id="resultAmount">¥ 0</div>
+        <div class="result-sub" id="resultSub"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ 예산 탭 ============ -->
+  <div class="panel" id="panel-budget">
+
+    <div class="card">
+      <div class="card-title">여행 예산</div>
+      <div class="field" id="budgetTotalField">
+        <div class="field-top"><span class="field-label">총 예산</span></div>
+        <div class="field-row">
+          <span class="unit">¥</span>
+          <input class="amount" id="budgetTotalInput" inputmode="numeric" placeholder="0" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="stat-row" style="margin-top:14px;">
+        <div class="stat"><div class="stat-label">사용 금액</div><div class="stat-value" id="budgetSpent">¥0</div></div>
+        <div class="stat highlight"><div class="stat-label">남은 예산</div><div class="stat-value" id="budgetLeft">¥0</div></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="budgetProgress" style="width:0%"></div></div>
+      <div class="result-sub" id="budgetLeftKrw" style="text-align:center; margin-top:10px;"></div>
+
+      <div class="override">
+        <div class="field-top" style="margin-bottom:8px;"><span class="field-label">남은 여행 일수 (선택)</span></div>
+        <div class="field small" id="tripDaysField" style="margin-top:0;">
+          <div class="field-row"><input type="number" id="tripDaysInput" inputmode="numeric" placeholder="예: 5" min="0"><span class="unit">일</span></div>
+        </div>
+        <div class="result-sub" id="dailyBudgetSub" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title tight">지출 추가</div>
+      <div class="add-row">
+        <div class="field small" id="expenseAmtField" style="margin-top:0;">
+          <div class="field-row"><span class="unit">¥</span><input class="amount" id="expenseAmtInput" inputmode="numeric" placeholder="0" autocomplete="off"></div>
+        </div>
+      </div>
+      <div class="add-row" style="margin-top:8px;">
+        <div class="field text" id="expenseLabelField" style="margin-top:0;">
+          <input type="text" id="expenseLabelInput" placeholder="무엇에 썼나요? (선택)">
+        </div>
+        <button id="expenseAddBtn">추가</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title tight">지출 내역</div>
+      <div id="expenseRows"><div class="empty-note">아직 지출 내역이 없어요</div></div>
+    </div>
+
+  </div>
+
+  <div class="install-note" id="installNote">
+    <span>📲</span>
+    <div>
+      <strong>홈 화면에 추가하기</strong><br>
+      iOS: 하단 공유 버튼 → "홈 화면에 추가"<br>
+      Android(Chrome): 우측 상단 ⋮ 메뉴 → "홈 화면에 추가 / 앱 설치"
+    </div>
+    <button class="install-close" id="installClose" aria-label="닫기">✕</button>
+  </div>
+
+  <footer>
+    환율은 open.er-api.com 실시간 데이터를 기준으로 하며, 실제 은행·환전소 조건과 다를 수 있어요.<br>
+    일본 여행 잘 다녀오세요 🗼
+  </footer>
+</div>
+
+<script>
+  const CUR = 'en-US'; // 쉼표(,) 구분자
+
+  // ---------- 공통 유틸 ----------
+  function fmt(n){ if(isNaN(n)) return ''; return Math.round(n).toLocaleString(CUR); }
+  function parseNum(str){ const c = (str||'').replace(/[^0-9]/g,''); return c ? parseInt(c,10) : 0; }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function loadJSON(key, fallback){
+    try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch(e){ return fallback; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); return true; } catch(e){ return false; }
+  }
+  function storageAvailable(){
+    try{
+      const k = '__probe__';
+      localStorage.setItem(k, '1');
+      localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  // ---------- 환율 / 수수료 상태 ----------
+  const advRate = document.getElementById('advRate');
+  const advFee = document.getElementById('advFee');
+  const basicRate = document.getElementById('basicRate');
+  let baseRate = 0.0088; // KRW per 1 JPY (fallback, live fetch overrides)
+  let syncingRate = false;
+
+  function customRate(){ const v = parseFloat(advRate.value); return (!isNaN(v) && v > 0) ? v/100 : null; }
+  function feePercent(){ const v = parseFloat(advFee.value); return (!isNaN(v) && v >= 0) ? v : 0; }
+  function effectiveRate(){ return customRate() || baseRate; }
+  function toKRW(idr){ return idr * effectiveRate() * (1 - feePercent()/100); }
+  function toIDR(krw){ return (krw / (1 - feePercent()/100 || 1)) / effectiveRate(); }
+
+  function syncFrom(sourceEl, targetEl){
+    if(syncingRate) return;
+    syncingRate = true; targetEl.value = sourceEl.value; syncingRate = false;
+  }
+
+  // ---------- 자주 쓰는 금액 (커스텀 포함) ----------
+  const DEFAULT_AMOUNTS = [1000, 3000, 5000, 10000, 30000, 50000];
+  let customAmounts = loadJSON('customAmounts', []);
+  function allAmounts(){ return customAmounts.concat(DEFAULT_AMOUNTS); }
+  function isCustom(amt){ return customAmounts.includes(amt); }
+  function addCustomAmount(amt){
+    if(!amt || amt <= 0) return;
+    if(customAmounts.includes(amt) || DEFAULT_AMOUNTS.includes(amt)) return;
+    customAmounts.unshift(amt);
+    saveJSON('customAmounts', customAmounts);
+  }
+  function removeCustomAmount(amt){
+    customAmounts = customAmounts.filter(a => a !== amt);
+    saveJSON('customAmounts', customAmounts);
+  }
+
+  // ============ 기본 탭 ============
+  const idrInput = document.getElementById('idrInput');
+  const krwInput = document.getElementById('krwInput');
+  const idrField = document.getElementById('idrField');
+  const krwField = document.getElementById('krwField');
+  const exRows = document.getElementById('exRows');
+  let lastEdited = 'idr';
+
+  function recalcFromIDR(){ const idr = parseNum(idrInput.value); krwInput.value = idr ? fmt(toKRW(idr)) : ''; }
+  function recalcFromKRW(){ const krw = parseNum(krwInput.value); idrInput.value = krw ? fmt(toIDR(krw)) : ''; }
+
+  function renderExList(){
+    exRows.innerHTML = allAmounts().map(amt => `
+      <div class="ex-row ${isCustom(amt)?'custom':''}" data-amt="${amt}">
+        <span class="ex-idr">${isCustom(amt)?'<span class="custom-dot"></span>':''}¥ ${amt.toLocaleString(CUR)}</span>
+        <span class="ex-krw">₩${fmt(toKRW(amt))}</span>
+        ${isCustom(amt) ? `<button class="ex-del" data-del="${amt}">✕</button>` : ''}
+      </div>
+    `).join('');
+    exRows.querySelectorAll('.ex-row').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if(e.target.closest('.ex-del')) return;
+        const amt = parseInt(row.dataset.amt, 10);
+        idrInput.value = (parseNum(idrInput.value) + amt).toLocaleString(CUR);
+        lastEdited = 'idr'; recalcFromIDR();
+        idrField.classList.add('focused'); setTimeout(()=>idrField.classList.remove('focused'),400);
+      });
+    });
+    exRows.querySelectorAll('.ex-del').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeCustomAmount(parseInt(btn.dataset.del,10));
+        renderExList(); renderAdvExList();
+      });
+    });
+  }
+
+  const exAddToggle = document.getElementById('exAddToggle');
+  const exAddRow = document.getElementById('exAddRow');
+  const exAddInput = document.getElementById('exAddInput');
+  exAddToggle.addEventListener('click', () => {
+    exAddRow.classList.toggle('open');
+    if(exAddRow.classList.contains('open')) exAddInput.focus();
+  });
+  document.getElementById('exAddConfirm').addEventListener('click', () => {
+    addCustomAmount(parseInt(exAddInput.value, 10));
+    exAddInput.value = '';
+    exAddRow.classList.remove('open');
+    renderExList(); renderAdvExList();
+  });
+
+  idrInput.addEventListener('input', () => {
+    lastEdited = 'idr';
+    const raw = parseNum(idrInput.value);
+    idrInput.value = raw ? raw.toLocaleString(CUR) : '';
+    recalcFromIDR();
+  });
+  krwInput.addEventListener('input', () => {
+    lastEdited = 'krw';
+    const raw = parseNum(krwInput.value);
+    krwInput.value = raw ? raw.toLocaleString(CUR) : '';
+    recalcFromKRW();
+  });
+  idrInput.addEventListener('focus', () => idrField.classList.add('focused'));
+  idrInput.addEventListener('blur', () => { idrField.classList.remove('focused'); logHistory(); });
+  krwInput.addEventListener('focus', () => krwField.classList.add('focused'));
+  krwInput.addEventListener('blur', () => { krwField.classList.remove('focused'); logHistory(); });
+
+  // ---- 최근 계산 기록 ----
+  let calcHistory = loadJSON('calcHistory', []);
+  const historyRows = document.getElementById('historyRows');
+  function logHistory(){
+    const idr = parseNum(idrInput.value);
+    if(!idr) return;
+    const krw = parseNum(krwInput.value);
+    const last = calcHistory[0];
+    if(last && last.idr === idr) return;
+    calcHistory.unshift({ idr, krw, ts: Date.now() });
+    calcHistory = calcHistory.slice(0, 8);
+    saveJSON('calcHistory', calcHistory);
+    renderHistory();
+  }
+  function renderHistory(){
+    if(!calcHistory.length){ historyRows.innerHTML = '<div class="empty-note">아직 계산 기록이 없어요</div>'; return; }
+    historyRows.innerHTML = calcHistory.map(h => {
+      const t = new Date(h.ts);
+      const timeStr = t.toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+      return `<div class="history-row">
+        <span class="history-amt">¥ ${h.idr.toLocaleString(CUR)} → ₩${h.krw.toLocaleString(CUR)}</span>
+        <span class="history-time">${timeStr}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+    calcHistory = []; saveJSON('calcHistory', calcHistory); renderHistory();
+  });
+
+  advRate.addEventListener('input', () => { syncFrom(advRate, basicRate); refreshAll(); });
+  basicRate.addEventListener('input', () => { syncFrom(basicRate, advRate); refreshAll(); });
+  advFee.addEventListener('input', refreshAll);
+
+  document.getElementById('advRateField').querySelector('input').addEventListener('focus', () => document.getElementById('advRateField').classList.add('focused'));
+  advRate.addEventListener('blur', () => document.getElementById('advRateField').classList.remove('focused'));
+  advFee.addEventListener('focus', () => document.getElementById('advFeeField').classList.add('focused'));
+  advFee.addEventListener('blur', () => document.getElementById('advFeeField').classList.remove('focused'));
+  basicRate.addEventListener('focus', () => document.getElementById('basicRateField').classList.add('focused'));
+  basicRate.addEventListener('blur', () => document.getElementById('basicRateField').classList.remove('focused'));
+
+  document.getElementById('fillLiveBtn').addEventListener('click', () => {
+    advRate.value = (baseRate * 100).toFixed(2);
+    syncFrom(advRate, basicRate);
+    refreshAll();
+  });
+  document.getElementById('basicResetBtn').addEventListener('click', () => {
+    basicRate.value = ''; advRate.value = ''; refreshAll();
+  });
+
+  // ============ 고급 탭 ============
+  const advAmountInput = document.getElementById('advAmountInput');
+  const advAmountField = document.getElementById('advAmountField');
+  const advAmountUnit = document.getElementById('advAmountUnit');
+  const advExRows = document.getElementById('advExRows');
+  const resultAmount = document.getElementById('resultAmount');
+  const resultSub = document.getElementById('resultSub');
+  const dirToggle = document.getElementById('dirToggle');
+  let advDirection = 'krw';
+
+  function renderAdvExList(){
+    advExRows.innerHTML = allAmounts().map(amt => {
+      const label = advDirection === 'krw' ? `₩${amt.toLocaleString(CUR)}` : `¥ ${amt.toLocaleString(CUR)}`;
+      const converted = advDirection === 'krw' ? toIDR(amt) : toKRW(amt);
+      const convertedLabel = advDirection === 'krw' ? `¥ ${fmt(converted)}` : `₩${fmt(converted)}`;
+      return `<div class="ex-row ${isCustom(amt)?'custom':''}" data-amt="${amt}">
+        <span class="ex-idr">${isCustom(amt)?'<span class="custom-dot"></span>':''}${label}</span>
+        <span class="ex-krw">${convertedLabel}</span>
+      </div>`;
+    }).join('');
+    advExRows.querySelectorAll('.ex-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const amt = parseInt(row.dataset.amt, 10);
+        advAmountInput.value = (parseNum(advAmountInput.value) + amt).toLocaleString(CUR);
+        computeAdvResult();
+        advAmountField.classList.add('focused'); setTimeout(()=>advAmountField.classList.remove('focused'),400);
+      });
+    });
+  }
+  function updateDirectionUI(){
+    dirToggle.querySelectorAll('.dir-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.dir === advDirection));
+    advAmountUnit.textContent = advDirection === 'krw' ? '₩' : '¥';
+  }
+  function computeAdvResult(){
+    const amt = parseNum(advAmountInput.value);
+    if(advDirection === 'krw'){
+      const gross = amt / effectiveRate();
+      const net = toIDR(amt);
+      resultAmount.textContent = `¥ ${fmt(net)}`;
+      resultSub.textContent = feePercent() > 0 ? `수수료 전 ¥ ${fmt(gross)} · 수수료 ${feePercent()}% 차감` : (amt ? '수수료 없음' : '');
+    } else {
+      const gross = amt * effectiveRate();
+      const net = toKRW(amt);
+      resultAmount.textContent = `₩${fmt(net)}`;
+      resultSub.textContent = feePercent() > 0 ? `수수료 전 ₩${fmt(gross)} · 수수료 ${feePercent()}% 차감` : (amt ? '수수료 없음' : '');
+    }
+  }
+  advAmountInput.addEventListener('input', () => {
+    const raw = parseNum(advAmountInput.value);
+    advAmountInput.value = raw ? raw.toLocaleString(CUR) : '';
+    computeAdvResult();
+  });
+  advAmountInput.addEventListener('focus', () => advAmountField.classList.add('focused'));
+  advAmountInput.addEventListener('blur', () => advAmountField.classList.remove('focused'));
+  dirToggle.querySelectorAll('.dir-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(btn.dataset.dir === advDirection) return;
+      advDirection = btn.dataset.dir;
+      advAmountInput.value = '';
+      updateDirectionUI(); renderAdvExList(); computeAdvResult();
+    });
+  });
+
+  // ============ 예산 탭 ============
+  const budgetTotalInput = document.getElementById('budgetTotalInput');
+  const budgetSpent = document.getElementById('budgetSpent');
+  const budgetLeft = document.getElementById('budgetLeft');
+  const budgetProgress = document.getElementById('budgetProgress');
+  const budgetLeftKrw = document.getElementById('budgetLeftKrw');
+  const tripDaysInput = document.getElementById('tripDaysInput');
+  const dailyBudgetSub = document.getElementById('dailyBudgetSub');
+  const expenseAmtInput = document.getElementById('expenseAmtInput');
+  const expenseLabelInput = document.getElementById('expenseLabelInput');
+  const expenseRows = document.getElementById('expenseRows');
+
+  let budgetData = loadJSON('budgetData', { total: '', days: '', entries: [] });
+  budgetTotalInput.value = budgetData.total ? Number(budgetData.total).toLocaleString(CUR) : '';
+  tripDaysInput.value = budgetData.days || '';
+
+  function saveBudget(){ saveJSON('budgetData', budgetData); }
+
+  function renderBudget(){
+    const total = parseNum(budgetTotalInput.value); // ¥ 기준 총 예산
+    const spentJPY = budgetData.entries.reduce((sum, e) => sum + e.amt, 0);
+    const left = total - spentJPY;
+    budgetSpent.textContent = `¥${fmt(spentJPY)}`;
+    budgetLeft.textContent = `¥${fmt(left)}`;
+    budgetLeftKrw.textContent = total ? `≈ ₩${fmt(toKRW(left))} 남음` : '';
+    const pct = total > 0 ? Math.min(100, (spentJPY/total)*100) : 0;
+    budgetProgress.style.width = pct + '%';
+    budgetProgress.classList.toggle('over', spentJPY > total && total > 0);
+
+    const days = parseInt(tripDaysInput.value, 10);
+    if(days > 0 && total > 0){
+      const perDay = left / days;
+      dailyBudgetSub.textContent = `하루 평균 ¥${fmt(perDay)} (≈ ₩${fmt(toKRW(perDay))}) 사용 가능`;
+    } else {
+      dailyBudgetSub.textContent = '';
+    }
+
+    if(!budgetData.entries.length){
+      expenseRows.innerHTML = '<div class="empty-note">아직 지출 내역이 없어요</div>';
+      return;
+    }
+    expenseRows.innerHTML = budgetData.entries.slice().reverse().map(e => `
+      <div class="item-row" data-id="${e.id}">
+        <div class="item-main">
+          <div class="item-title">${e.label || '지출'}</div>
+          <div class="item-sub">≈ ₩${fmt(toKRW(e.amt))}</div>
+        </div>
+        <div class="item-amt">¥${e.amt.toLocaleString(CUR)}</div>
+        <button class="item-del" data-del="${e.id}">✕</button>
+      </div>
+    `).join('');
+    expenseRows.querySelectorAll('.item-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        budgetData.entries = budgetData.entries.filter(e => e.id !== btn.dataset.del);
+        saveBudget(); renderBudget();
+      });
+    });
+  }
+
+  budgetTotalInput.addEventListener('input', () => {
+    const raw = parseNum(budgetTotalInput.value);
+    budgetTotalInput.value = raw ? raw.toLocaleString(CUR) : '';
+    budgetData.total = raw; saveBudget(); renderBudget();
+  });
+  tripDaysInput.addEventListener('input', () => {
+    budgetData.days = tripDaysInput.value; saveBudget(); renderBudget();
+  });
+  expenseAmtInput.addEventListener('input', () => {
+    const raw = parseNum(expenseAmtInput.value);
+    expenseAmtInput.value = raw ? raw.toLocaleString(CUR) : '';
+  });
+  document.getElementById('expenseAddBtn').addEventListener('click', () => {
+    const amt = parseNum(expenseAmtInput.value);
+    if(!amt) return;
+    budgetData.entries.push({ id: uid(), amt, label: expenseLabelInput.value.trim(), ts: Date.now() });
+    saveBudget();
+    expenseAmtInput.value = ''; expenseLabelInput.value = '';
+    renderBudget();
+  });
+
+  // ============ 탭 전환 ============
+  const tabs = document.querySelectorAll('.tab');
+  const panels = {
+    home: document.getElementById('panel-home'),
+    basic: document.getElementById('panel-basic'),
+    advanced: document.getElementById('panel-advanced'),
+    budget: document.getElementById('panel-budget')
+  };
+  const rateBoard = document.getElementById('rateBoard');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      Object.values(panels).forEach(p => p.classList.remove('active'));
+      panels[tab.dataset.tab].classList.add('active');
+      rateBoard.style.display = (tab.dataset.tab === 'advanced' || tab.dataset.tab === 'home') ? 'none' : 'flex';
+      if(tab.dataset.tab === 'home') renderHome();
+    });
+  });
+
+  // ============ 다크모드 ============
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    themeToggle.textContent = isDark ? '☀️' : '🌙';
+    saveJSON('darkMode', isDark);
+  });
+  if(loadJSON('darkMode', false)){
+    document.body.classList.add('dark');
+    themeToggle.textContent = '☀️';
+  }
+
+  // ============ 색상 테마 ============
+  const themeRow = document.getElementById('themeRow');
+  function applyColorTheme(name){
+    document.body.classList.remove('theme-sakura', 'theme-ocean', 'theme-forest');
+    if(name && name !== 'sunset') document.body.classList.add('theme-' + name);
+    themeRow.querySelectorAll('.swatch').forEach(sw => sw.classList.toggle('active', sw.dataset.theme === name));
+  }
+  themeRow.querySelectorAll('.swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      applyColorTheme(sw.dataset.theme);
+      saveJSON('colorTheme', sw.dataset.theme);
+    });
+  });
+  applyColorTheme(loadJSON('colorTheme', 'sunset'));
+
+  // ============ 전체 초기화 ============
+  document.getElementById('resetAllBtn').addEventListener('click', () => {
+    idrInput.value = ''; krwInput.value = '';
+    basicRate.value = ''; advRate.value = ''; advFee.value = '';
+    advAmountInput.value = ''; advDirection = 'krw'; updateDirectionUI();
+    lastEdited = 'idr';
+    refreshAll();
+  });
+
+  // ============ 설정 저장 ============
+  const saveBtn = document.getElementById('saveBtn');
+  const saveLabel = document.getElementById('saveLabel');
+  function saveSettings(){
+    const ok = saveJSON('rupiahConverterSettings', { rate: advRate.value, fee: advFee.value });
+    saveLabel.textContent = ok ? '저장됨 ✓' : '저장 불가';
+    setTimeout(() => { saveLabel.textContent = '설정 저장'; }, 1600);
+  }
+  function loadSettings(){
+    const data = loadJSON('rupiahConverterSettings', null);
+    if(!data) return;
+    if(data.rate){ advRate.value = data.rate; basicRate.value = data.rate; }
+    if(data.fee){ advFee.value = data.fee; }
+  }
+  saveBtn.addEventListener('click', saveSettings);
+
+  // ============ 새로고침 & 초기화 ============
+  const rateDisplay = document.getElementById('rateDisplay');
+  const rateStatus = document.getElementById('rateStatus');
+  const refreshBtn = document.getElementById('refreshBtn');
+
+  function updateRateDisplay(){ rateDisplay.textContent = `100엔 = ${(effectiveRate()*100).toFixed(2)}원`; }
+
+  function renderHome(){
+    document.getElementById('homeRate').textContent = `100엔 = ${(effectiveRate()*100).toFixed(2)}원`;
+    const block = document.getElementById('homeBudgetBlock');
+    const total = parseNum(budgetTotalInput.value);
+    if(!total){
+      block.innerHTML = '<div class="empty-note">예산 탭에서 예산을 설정해보세요</div>';
+      return;
+    }
+    const spent = budgetData.entries.reduce((sum, e) => sum + e.amt, 0);
+    const left = total - spent;
+    block.innerHTML = `
+      <div class="result-label">남은 예산</div>
+      <div class="result-amount" style="font-size:28px;">¥${fmt(left)}</div>
+      <div class="result-sub">≈ ₩${fmt(toKRW(left))}</div>
+    `;
+  }
+
+  function refreshAll(){
+    updateRateDisplay();
+    if(lastEdited === 'krw') recalcFromKRW(); else recalcFromIDR();
+    renderExList();
+    renderAdvExList(); computeAdvResult();
+    renderBudget();
+    renderHome();
+  }
+
+  async function fetchRate(showSpin){
+    if(showSpin) refreshBtn.classList.add('spinning');
+    rateStatus.textContent = '불러오는 중…';
+    try{
+      const res = await fetch('https://open.er-api.com/v6/latest/JPY');
+      const data = await res.json();
+      if(data && data.rates && data.rates.KRW){
+        baseRate = data.rates.KRW;
+        saveJSON('lastKnownRate', { rate: baseRate, ts: Date.now() });
+        const t = data.time_last_update_utc ? new Date(data.time_last_update_utc) : new Date();
+        rateStatus.textContent = '실시간 · ' + t.toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) + ' 기준';
+        advRate.placeholder = (baseRate*100).toFixed(2);
+        basicRate.placeholder = (baseRate*100).toFixed(2);
+      } else { throw new Error('no rate'); }
+    } catch(e){
+      rateStatus.textContent = '오프라인 · 예상 환율 사용 중';
+    } finally {
+      if(showSpin) setTimeout(() => refreshBtn.classList.remove('spinning'), 700);
+      refreshAll();
+    }
+  }
+  refreshBtn.addEventListener('click', () => fetchRate(true));
+
+  document.getElementById('installClose').addEventListener('click', () => {
+    document.getElementById('installNote').style.display = 'none';
+  });
+
+  loadSettings();
+  updateDirectionUI();
+  renderHistory();
+  refreshAll();
+  fetchRate(false);
+
+  if(!storageAvailable()){
+    document.getElementById('storageWarn').classList.add('show');
+  }
+
+  // ---- PWA: 아이콘 / 매니페스트 자동 생성 ----
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath(); ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function buildIcon(size){
+    const c = document.createElement('canvas'); c.width = size; c.height = size;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#12B8A0'; roundRect(ctx,0,0,size,size,size*0.22); ctx.fill();
+    ctx.fillStyle = '#FFFFFF'; ctx.font = `700 ${size*0.44}px Georgia, serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('¥', size/2, size*0.56);
+    return c.toDataURL('image/png');
+  }
+  try{
+    const icon192 = buildIcon(192), icon512 = buildIcon(512);
+    document.getElementById('faviconLink').href = buildIcon(64);
+    document.getElementById('appleIconLink').href = buildIcon(180);
+    const manifest = {
+      name: '엔화 원화 환율 계산기', short_name: '엔화환율', start_url: '.', display: 'standalone',
+      background_color: '#FFF6EA', theme_color: '#FFF6EA',
+      icons: [{ src: icon192, sizes: '192x192', type: 'image/png' }, { src: icon512, sizes: '512x512', type: 'image/png' }]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    document.getElementById('manifestLink').href = URL.createObjectURL(blob);
+  } catch(e){ /* not critical */ }
+
+  // ---- 오프라인 지원 안내: (단일 파일 배포 시에는 서비스 워커를 별도로 등록하지 않음) ----
+</script>
+</body>
+</html>

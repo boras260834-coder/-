@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>엔화 요약</title>
+<meta name="theme-color" content="#FFF6EA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFF6EA; --surface:#FFFFFF; --surface-2:#FFF1DC;
+    --accent:#12B8A0; --accent-2:#FF8552; --accent-ink:#FFFFFF;
+    --text:#1C2B33; --text-muted:#5F7C79; --text-faint:#93AEAA;
+    --line:rgba(28,43,51,0.09); --shadow:0 2px 14px rgba(28,43,51,0.06);
+  }
+  body.dark{
+    --bg:#0F1E1C; --surface:#16302B; --surface-2:#132621;
+    --accent:#1FD1B4; --accent-2:#FF9868; --accent-ink:#0B1917;
+    --text:#F3EFE6; --text-muted:#8FADA7; --text-faint:#5F7D77;
+    --line:rgba(243,239,230,0.10); --shadow:0 2px 14px rgba(0,0,0,0.25);
+  }
+  body.theme-sakura{ --accent:#FF6FA5; --accent-2:#6C63FF; }
+  body.theme-ocean{ --accent:#2E86DE; --accent-2:#FFC145; }
+  body.theme-forest{ --accent:#3EAA6D; --accent-2:#E8735C; }
+  body.dark.theme-sakura{ --accent:#FF8FBB; --accent-2:#8B84FF; }
+  body.dark.theme-ocean{ --accent:#5EA6F2; --accent-2:#FFD166; }
+  body.dark.theme-forest{ --accent:#5FC98C; --accent-2:#FF9478; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% -8%, rgba(255,197,120,0.35), transparent 42%),
+      radial-gradient(circle at 100% 0%, rgba(18,184,160,0.14), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Manrope', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .widget{
+    width:100%; max-width:340px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:26px 24px;
+    box-shadow:var(--shadow);
+    text-align:center;
+  }
+  .date{ font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent-2); font-weight:700; margin-bottom:16px; }
+  .rate-label{ font-size:11px; color:var(--text-faint); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px; }
+  .rate-value{ font-family:'Fraunces', serif; font-size:30px; font-weight:600; color:var(--accent); margin-bottom:4px; }
+  .rate-sub{ font-size:11px; color:var(--text-faint); margin-bottom:22px; }
+
+  .divider{ height:1px; background:var(--line); margin:0 -24px 20px; }
+
+  .budget-label{ font-size:11px; color:var(--text-faint); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px; }
+  .budget-value{ font-family:'Fraunces', serif; font-size:26px; font-weight:600; color:var(--accent-2); margin-bottom:8px; }
+  .progress-track{ height:8px; background:var(--surface-2); border-radius:5px; overflow:hidden; margin-bottom:6px; }
+  .progress-fill{ height:100%; background:var(--accent); border-radius:5px; }
+  .progress-fill.over{ background:#E0654F; }
+  .budget-sub{ font-size:11px; color:var(--text-faint); }
+
+  .no-budget{ font-size:12.5px; color:var(--text-faint); padding:8px 0 4px; }
+
+  .open-btn{
+    display:block; margin-top:22px; text-decoration:none;
+    background:var(--accent); color:var(--accent-ink);
+    font-family:'Manrope', sans-serif; font-size:13px; font-weight:800;
+    padding:12px 0; border-radius:12px;
+  }
+  .refresh{
+    display:inline-flex; align-items:center; gap:5px; margin-top:14px;
+    font-size:11.5px; color:var(--text-muted); background:none; border:none; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+  <div class="widget">
+    <div class="date" id="dateLabel">Japan</div>
+
+    <div class="rate-label">현재 환율</div>
+    <div class="rate-value" id="rateValue">100엔 = 8.80원</div>
+    <div class="rate-sub" id="rateSub">불러오는 중…</div>
+
+    <div class="divider"></div>
+
+    <div id="budgetBlock">
+      <div class="no-budget">예산이 아직 설정되지 않았어요</div>
+    </div>
+
+    <a class="open-btn" href="./index.html">전체 앱 열기 →</a>
+    <button class="refresh" id="refreshBtn">↻ 새로고침</button>
+  </div>
+
+<script>
+  const CUR = 'en-US';
+  function loadJSON(key, fallback){
+    try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch(e){ return fallback; }
+  }
+  if(loadJSON('darkMode', false)) document.body.classList.add('dark');
+  const savedTheme = loadJSON('colorTheme', 'sunset');
+  if(savedTheme && savedTheme !== 'sunset') document.body.classList.add('theme-' + savedTheme);
+
+  function fmt(n){ if(isNaN(n)) return '0'; return Math.round(n).toLocaleString(CUR); }
+
+  const dateLabel = document.getElementById('dateLabel');
+  const rateValue = document.getElementById('rateValue');
+  const rateSub = document.getElementById('rateSub');
+  const budgetBlock = document.getElementById('budgetBlock');
+
+  dateLabel.textContent = new Date().toLocaleDateString('ko-KR', { month:'long', day:'numeric', weekday:'short' });
+
+  const settings = loadJSON('rupiahConverterSettings', null);
+  const lastKnown = loadJSON('lastKnownRate', null);
+  let baseRate = (lastKnown && lastKnown.rate) ? lastKnown.rate : 0.0088;
+
+  function effectiveRate(){
+    if(settings && settings.rate){
+      const v = parseFloat(settings.rate);
+      if(!isNaN(v) && v > 0) return v / 100;
+    }
+    return baseRate;
+  }
+  function feePercent(){
+    if(settings && settings.fee){
+      const v = parseFloat(settings.fee);
+      if(!isNaN(v) && v >= 0) return v;
+    }
+    return 0;
+  }
+  function toKRW(idr){ return idr * effectiveRate() * (1 - feePercent()/100); }
+
+  function renderRate(){
+    rateValue.textContent = `100엔 = ${(effectiveRate()*100).toFixed(2)}원`;
+  }
+
+  function renderBudget(){
+    const data = loadJSON('budgetData', null);
+    if(!data || !data.total){
+      budgetBlock.innerHTML = '<div class="no-budget">예산이 아직 설정되지 않았어요</div>';
+      return;
+    }
+    const total = Number(data.total);
+    const entries = data.entries || [];
+    const spent = entries.reduce((sum, e) => sum + toKRW(e.amt), 0);
+    const left = total - spent;
+    const pct = total > 0 ? Math.min(100, (spent/total)*100) : 0;
+    budgetBlock.innerHTML = `
+      <div class="budget-label">남은 예산</div>
+      <div class="budget-value">₩${fmt(left)}</div>
+      <div class="progress-track"><div class="progress-fill ${spent>total?'over':''}" style="width:${pct}%"></div></div>
+      <div class="budget-sub">₩${fmt(spent)} 사용 · 총 ₩${fmt(total)}</div>
+    `;
+  }
+
+  async function fetchLive(){
+    rateSub.textContent = '불러오는 중…';
+    try{
+      const res = await fetch('https://open.er-api.com/v6/latest/JPY');
+      const data = await res.json();
+      if(data && data.rates && data.rates.KRW){
+        baseRate = data.rates.KRW;
+        localStorage.setItem('lastKnownRate', JSON.stringify({ rate: baseRate, ts: Date.now() }));
+        rateSub.textContent = '실시간 기준';
+      } else { throw new Error('no rate'); }
+    } catch(e){
+      rateSub.textContent = lastKnown ? '오프라인 · 마지막 저장값 사용' : '오프라인 · 예상 환율 사용';
+    }
+    renderRate();
+    renderBudget();
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', fetchLive);
+
+  renderRate();
+  renderBudget();
+  fetchLive();
+</script>
+</body>
+</html>
